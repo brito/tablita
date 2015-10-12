@@ -1,0 +1,66 @@
+<!doctype html>
+<title> Calculadora </title>
+
+<link rel=author href="https://twitter.com/doctype_brit">
+
+<style>
+/* tablita */
+* { padding:0; margin:0; border:0 }
+html,body { height:100%;
+	font:calc(100vw/40)/1.6 HelveticaNeue-UltraLight,Segoe UI,Roboto Thin,sans-serif }
+thead { font-family:HelveticaNeue }
+input { font-family:inherit; font-size:inherit; outline:1px solid; border-radius:3px;
+	padding:0 .3em }
+table { margin:auto }
+td { padding:0 1em }
+
+/* alinear numeros */
+td:nth-child(1),
+td:nth-child(3),
+td:nth-child(6),
+#output { text-align:right }
+tbody td:nth-child(1):before,
+tbody td:nth-child(6):before { content:'$'}
+
+/* seleccion */
+tbody tr { transition:all 250ms; display:none }
+tbody tr.match { display:table-row }
+
+[for=disponible] { display:block; padding:2em; width:13em; margin:1em auto;
+	border:1px solid rgba(0,0,0,.1); border-radius:5px }
+#disponible { width:3em }
+</style>
+
+<label for=disponible> Ingreso Disponible:
+	$ <input id=disponible placeholder=123>
+</label>
+
+<table>
+	<thead>
+	<td> Cuota <td> Frecuencia <td> Pagos <td> Servicio <td> Plazo <td> Total 
+	<tbody id=planes>
+	<tr><td> 228 <td> Semanal  <td> 52 por a&ntilde;o  <td> TFC <td> 3 Años <td> 35,568 
+	<tr><td> 380 <td> Semanal  <td> 52 por a&ntilde;o  <td> RFC <td> 3 Años <td> 59,280 
+	<tr><td> 532 <td> Semanal  <td> 52 por a&ntilde;o  <td> DFC <td> 3 Años <td> 82,992 
+</table>
+
+<script>
+with(document.querySelector('input'))
+	oninput = function(){
+		var value = +this.value;
+		Array.prototype.map.call(
+			document.querySelectorAll('#planes td:first-child'), function(e){
+				e.parentNode.className = '';
+				return e; })
+			.filter(function(e, i){
+				return e.innerText <= value || !i; })
+			.reverse()[0].parentNode.className = 'match';
+			
+		this.value = this.value.replace(/[^\d,.]/,'');
+	},
+	onkeydown = function(e){
+		if (e.keyCode == 13)
+			this.placeholder = this.value,
+			this.value = ''; };
+</script>
+
