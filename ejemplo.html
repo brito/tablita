@@ -4,7 +4,7 @@
 <link rel=author href="https://twitter.com/doctype_brit">
 
 <style>
-/* tablita */
+/* Estilos para la tablita */
 * { padding:0; margin:0; border:0 }
 html,body { height:100%;
 	font:calc(100vw/40)/1.6 HelveticaNeue-UltraLight,Segoe UI,Roboto Thin,sans-serif }
@@ -14,18 +14,17 @@ input { font-family:inherit; font-size:inherit; outline:1px solid; border-radius
 table { margin:auto }
 td { padding:0 1em }
 
-/* alinear numeros */
+/* Alinear numeros a la derecha en la primera columna */
 td:nth-child(1),
-td:nth-child(3),
-td:nth-child(6),
 #output { text-align:right }
-tbody td:nth-child(1):before,
-tbody td:nth-child(6):before { content:'$'}
+/* La primera columna con simbolo de moneda */
+tbody td:nth-child(1):before { content:'$'}
 
-/* seleccion */
+/* Al seleccionar, solamente 'tr class=match' se despliega */
 tbody tr { transition:all 250ms; display:none }
 tbody tr.match { display:table-row }
 
+/* Estilos para la etiqueta del campo */
 [for=disponible] { display:block; padding:2em; width:13em; margin:1em auto;
 	border:1px solid rgba(0,0,0,.1); border-radius:5px }
 #disponible { width:3em }
@@ -34,33 +33,98 @@ tbody tr.match { display:table-row }
 <label for=disponible> Ingreso Disponible:
 	$ <input id=disponible placeholder=123>
 </label>
-
-<table>
-	<thead>
-	<td> Cuota <td> Frecuencia <td> Pagos <td> Servicio <td> Plazo <td> Total 
-	<tbody id=planes>
-	<tr><td> 228 <td> Semanal  <td> 52 por a&ntilde;o  <td> TFC <td> 3 Años <td> 35,568 
-	<tr><td> 380 <td> Semanal  <td> 52 por a&ntilde;o  <td> RFC <td> 3 Años <td> 59,280 
-	<tr><td> 532 <td> Semanal  <td> 52 por a&ntilde;o  <td> DFC <td> 3 Años <td> 82,992 
-</table>
-
+		
 <script>
-with(document.querySelector('input'))
+// con el input id=disponible,
+with(disponible)
+	// cuando cambie el valor,
 	oninput = function(){
+		// se transforma el texto en valor numerico
 		var value = +this.value;
+		// usando el prototipo de la funcion map
 		Array.prototype.map.call(
-			document.querySelectorAll('#planes td:first-child'), function(e){
-				e.parentNode.className = '';
-				return e; })
-			.filter(function(e, i){
-				return e.innerText <= value || !i; })
+			// con la coleccion de todas las primeras columnas (el precio)
+			document.querySelectorAll('#planes td:first-child'), function(td){
+				// quitamos la clase de la hilera que contiene la columna
+				td.parentNode.className = '';
+				// regresamos al mapa la columna para continuar
+				return td; })
+			// filtramos las columnas
+			.filter(function(td, i){
+				// si el precio es menor o igual, o si es la primera columna
+				return td.innerText <= value || !i; })
+			// al reves, la primera columna es la que mostramos
 			.reverse()[0].parentNode.className = 'match';
-			
+		// se permiten solamente digitos, comas y puntos en el valor de esta casilla
 		this.value = this.value.replace(/[^\d,.]/,'');
 	},
+	// cuando se presione cualquier tecla
 	onkeydown = function(e){
+		// si la tecla es ENTER
 		if (e.keyCode == 13)
+			// el guardacampo se vuelve el valor
 			this.placeholder = this.value,
+			// y el valor se borra
 			this.value = ''; };
 </script>
 
+<textarea hidden id=csv>
+"Topacio, individual",13245
+"Topacio, individual sin destino final",11252
+"Topacio, familiar",19848
+"Topacio familiar, sin destino final",16862
+"Rubí, individiual",21915
+"Rubí, individual sin destino final",18615
+"Rubí, familiar",33092
+"Rubí, familiar sin destino final",28119
+"Diamante, individual",30838
+"Diamante, individual sin destino final",26226
+"Diamante, familiar",46337
+"Diamante, familiar sin destino final",39318
+"Jade, individual",39679
+"Jade, individual sin destino final",33734
+"Jade , familiar",59429
+"Jade , familiar sin destino final",50524
+</textarea>
+
+<table>
+	<thead>
+	<td> Precio MN <td> Plan
+	<tbody id=planes>
+</table>
+		
+<script>
+// con el valor de textarea id=csv,
+csv.value
+	// tomamos cada linea
+	.split('\n')
+	// y la pasamos por un acumulador
+	.reduce(function(matriz, linea, num){
+		// tomamos el valor entre comillas o un valor sin comas
+		linea.replace(/"[^"]+"|[^,]+/g, function(valor){
+			// lo ponemos en la hilera correspondiente de la matriz
+			matriz[num] = 
+				// tomando el valor previo o un arreglo nuevo
+				(matriz[num] || [])
+					// se le añade el valor sin comillas
+					.concat(valor.replace('"',''))
+		});
+		// el resultado es la matriz de datos
+		return matriz;
+	// este es el valor inicial de la matriz acumuladora (vacio)
+    	}, {})
+	// luego generamos las columnas en la tabla
+	.map(function(linea, num){
+		// creamos una hilera nueva por cada linea
+		var tr = document.createElement('tr');
+		// creamos el contenido de la hilera con texto
+		tr.innerHTML = '<td> $1 <td> $0'
+			// que se reemplaza por indice
+			.replace(/$(\d)/g, function(m, indice){
+				// con el valor de la linea
+				return linea[indice];
+			});
+		// luego se añade la hilera a la tabla
+		planes.appendChild(tr);
+	});
+</script>
