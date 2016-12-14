@@ -113,6 +113,10 @@ csv.value
 		return matriz;
 	// este es el valor inicial de la matriz acumuladora (vacio)
     	}, [])
+	// primero hay que asegurar que el arreglo va en orden ascendente
+	.sort(function(a, b){
+		return a[1] - b[1];
+	})
 	// luego generamos las columnas en la tabla
 	.map(function(linea, num){
 		// creamos una hilera nueva por cada linea
