@@ -120,7 +120,7 @@ csv.value
 		// creamos el contenido de la hilera con texto
 		tr.innerHTML = '<td> $1 <td> $0'
 			// que se reemplaza por indice
-			.replace(/$(\d)/g, function(m, indice){
+			.replace(/\$(\d)/g, function(m, indice){
 				// con el valor de la linea
 				return linea[indice];
 			});
