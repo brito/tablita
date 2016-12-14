@@ -107,7 +107,7 @@ csv.value
 				// tomando el valor previo o un arreglo nuevo
 				(matriz[num] || [])
 					// se le añade el valor sin comillas
-					.concat(valor.replace('"',''))
+					.concat(valor.replace(/"/g,''))
 		});
 		// el resultado es la matriz de datos
 		return matriz;
